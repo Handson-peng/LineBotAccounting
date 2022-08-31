@@ -13,16 +13,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"google.golang.org/api/sheets/v4"
+	"linebot/account/sheet"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"linebot/account/sheet"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"time"
-	"context"
-	"google.golang.org/api/sheets/v4"
 )
 
 var bot *linebot.Client
@@ -38,7 +37,6 @@ func main() {
 	}
 	sheet.SpreadsheetId = os.Getenv("SpreadsheetId")
 	service = sheet.Service(*srv)
-
 
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	log.Println("Bot:", bot, " err:", err)
@@ -74,7 +72,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				// message.ID: Msg unique ID
 				// message.Text: Msg text
 
-				service.AppendRow("2022/08",[]string{message.Text})
+				service.AppendRow("2022/08", []string{message.Text})
 				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("msg ID:"+message.ID+":"+"Get:"+message.Text+" , \n OK! remain message:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
 					log.Print(err)
 				}
