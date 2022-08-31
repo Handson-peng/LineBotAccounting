@@ -13,38 +13,21 @@
 package main
 
 import (
-	// "context"
-	// "google.golang.org/api/sheets/v4"
-	// "strings
 	"fmt"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"linebot/account/sheet"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 var bot *linebot.Client
-var service sheet.Service
 
 func main() {
 	var err error
-	// os.WriteFile("/app/google-credentials.json", []byte(os.Getenv("GOOGLE_CREDENTIALS")), 0644)
-	// os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/google-credentials.json")
-
-	// ctx := context.Background()
-
-	// srv, err := sheets.NewService(ctx)
-	// if err != nil {
-	// 	log.Fatalf("Unable to retrieve Sheets client: %v", err)
-	// }
-	// sheet.SpreadsheetId = os.Getenv("SpreadsheetId")
-	// service = sheet.Service(*srv)
-
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	log.Println("Bot:", bot, " err:", err)
-
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
@@ -75,8 +58,6 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				// message.ID: Msg unique ID
 				// message.Text: Msg text
-
-				// service.AppendRow("2022/08", strings.Split(message.Text, " "))
 				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("msg ID:"+message.ID+":"+"Get:"+message.Text+" , \n OK! remain message:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
 					log.Print(err)
 				}
