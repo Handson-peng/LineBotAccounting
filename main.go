@@ -14,22 +14,23 @@ package main
 
 import (
 	"context"
-	"google.golang.org/api/sheets/v4"
-	"strings"
 	"fmt"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/Handson-peng/LineBotAccounting/sheet"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"google.golang.org/api/sheets/v4"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+	"strings"
 	"time"
 )
 
 var bot *linebot.Client
 var service sheet.Service
+
 type cmfunc func([]string) string
-var command map[string]cmfunc= map[string]cmfunc{
+
+var command map[string]cmfunc = map[string]cmfunc{
 	"記帳": Record,
 	"總計": GetSum,
 }
@@ -73,7 +74,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			case *linebot.TextMessage:
 				textSlice := strings.Split(message.Text, " ")
 				runfunc, ok := command[textSlice[0]]
-				if !ok{
+				if !ok {
 					return
 				}
 				result := runfunc(textSlice[1:])
@@ -85,16 +86,16 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Record(text []string) string{
+func Record(text []string) string {
 	now := time.Now().Local()
 	textSlice := make([]string, len(text)+1)
 	textSlice[0] = now.Format("01/02 15:04")
 	copy(textSlice[1:], text)
 	service.AppendRow(now.Format("2006/01"), textSlice)
-	return ""
+	return "紀錄成功"
 }
-func GetSum(text []string) string{
+func GetSum(text []string) string {
 	now := time.Now().Local()
-	res := service.ValueGet(now.Format("2006/01"),"G1")
+	res := service.ValueGet(now.Format("2006/01"), "G1")
 	return fmt.Sprintf("%v", res[0][0])
 }
