@@ -27,7 +27,7 @@ import (
 
 var bot *linebot.Client
 var service sheet.Service
-
+var	zone = time.FixedZone("UTC+8", 8*60*60)
 type cmfunc func([]string) string
 
 var command map[string]cmfunc = map[string]cmfunc{
@@ -87,7 +87,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Record(text []string) string {
-	now := time.Now().Local()
+	now := time.Now().In(zone)
 	textSlice := make([]string, len(text)+1)
 	textSlice[0] = now.Format("01/02 15:04")
 	copy(textSlice[1:], text)
@@ -95,7 +95,7 @@ func Record(text []string) string {
 	return "紀錄成功"
 }
 func GetSum(text []string) string {
-	now := time.Now().Local()
+	now := time.Now().In(zone)
 	res := service.ValueGet(now.Format("2006/01"), "G1")
 	return fmt.Sprintf("%v", res[0][0])
 }

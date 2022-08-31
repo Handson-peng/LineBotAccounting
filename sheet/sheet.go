@@ -73,7 +73,8 @@ func (srv *Service) AppendRow(title string, str []string) {
 func (srv *Service) ValueGet(title, coord string) [][]any {
 	resp, err := srv.Spreadsheets.Values.Get(SpreadsheetId, title+"!"+coord).Do()
 	if err != nil {
-		log.Fatal(err)
+		srv.CreatSheetDemo(title)
+        return srv.ValueGet(title, coord)
 	}
 	return resp.Values
 }
