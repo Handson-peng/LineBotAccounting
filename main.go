@@ -30,7 +30,10 @@ var service sheet.Service
 
 func main() {
 	var err error
+    os.WriteFile("/app/google-credentials.json", []byte(os.Getenv("GOOGLE_CREDENTIALS")), 0644)
+	
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/google-credentials.json")
+
 
 	ctx := context.Background()
 
