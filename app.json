@@ -9,6 +9,9 @@
     },
     {
       "url": "heroku/go"
+    },
+    {
+      "url":"https://github.com/gerywahyunugraha/heroku-google-application-credentials-buildpack"
     }
   ],
   "env": {
@@ -18,6 +21,18 @@
     },
     "ChannelSecret": {
       "description": "Channel Secret",
+      "required": true
+    },
+    "SpreadsheetId": {
+      "description": "Spreadsheet ID",
+      "required": true
+    },
+    "GOOGLE_APPLICATION_CREDENTIALS": {
+      "description": "Do not change it",
+      "value":"google-credentials.json"
+    },
+    "GOOGLE_CREDENTIALS":{
+      "description": "google credentials json",
       "required": true
     }
   }
