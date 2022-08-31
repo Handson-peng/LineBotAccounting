@@ -23,15 +23,19 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 var bot *linebot.Client
 var service sheet.Service
+type cmfunc func([]string) string
+var command map[string]cmfunc= map[string]cmfunc{
+	"記帳": Record,
+	"總計": GetSum,
+}
 
 func main() {
 	var err error
-	// os.WriteFile("/app/google-credentials.json", []byte(os.Getenv("GOOGLE_CREDENTIALS")), 0644)
-	// os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/google-credentials.json")
 
 	ctx := context.Background()
 
@@ -62,37 +66,35 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			// Handle only on text message
 			case *linebot.TextMessage:
-				// GetMessageQuota: Get how many remain free tier push message quota you still have this month. (maximum 500)
-				quota, err := bot.GetMessageQuota().Do()
-				if err != nil {
-					log.Println("Quota err:", err)
+				textSlice := strings.Split(message.Text, " ")
+				runfunc, ok := command[textSlice[0]]
+				if !ok{
+					return
 				}
-				// message.ID: Msg unique ID
-				// message.Text: Msg text
-
-				service.AppendRow("2022/08", strings.Split(message.Text, " "))
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("msg ID:"+message.ID+":"+"Get:"+message.Text+" , \n OK! remain message:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
-					log.Print(err)
-				}
-
-			// Handle only on Sticker message
-			case *linebot.StickerMessage:
-				var kw string
-				for _, k := range message.Keywords {
-					kw = kw + "," + k
-				}
-
-				outStickerResult := fmt.Sprintf("收到貼圖訊息: %s, pkg: %s kw: %s  text: %s", message.StickerID, message.PackageID, kw, message.Text)
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(outStickerResult)).Do(); err != nil {
+				result := runfunc(textSlice[1:])
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Get:"+message.Text+" ,resulte:"+result)).Do(); err != nil {
 					log.Print(err)
 				}
 			}
 		}
 	}
+}
+
+func Record(text []string) string{
+	now := time.Now().Local()
+	textSlice := make([]string, len(text)+1)
+	textSlice[0] = now.Format("01/02 15:04")
+	copy(textSlice[1:], text)
+	service.AppendRow(now.Format("2006/01"), textSlice)
+	return ""
+}
+func GetSum(text []string) string{
+	now := time.Now().Local()
+	res := service.ValueGet(now.Format("2006/01"),"G1")
+	return fmt.Sprintf("%v", res[0][0])
 }
