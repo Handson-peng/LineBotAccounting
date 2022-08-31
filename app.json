@@ -1,7 +1,7 @@
 {
-  "name": "LineBotTemplate",
-  "description": "Line Bot API template",
-  "repository": "https://github.com/kkdai/LineBotTemplate",
+  "name": "LineBotAccounting",
+  "description": "Line Bot Accounting",
+  "repository": "https://github.com/Handson-peng/LineBotAccounting",
   "keywords": ["Line", "go", "static"],
   "buildpacks": [
     {
